@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"github.com/eoscanada/eos-go"
 	"github.com/eoscanada/eos-go/ecc"
+	"github.com/rs/zerolog/log"
 )
 
 func NewSigndice(contract, casinoAccount string, requestID uint64, signature string) *eos.Action {
@@ -32,12 +32,14 @@ func GetSigndiceTransaction(api *eos.API, contract, casinoAccount string, reques
 	txOpts := &eos.TxOptions{}
 
 	if err := txOpts.FillFromChain(api); err != nil {
-		panic(fmt.Errorf("filling tx opts: %s", err))
+		log.Error().Msgf("filling tx opts: %s", err.Error())
+		return nil, nil
 	}
 	tx := eos.NewTransaction([]*eos.Action{action}, txOpts)
 	signedTx, packedTx, err := api.SignTransaction(tx, txOpts.ChainID, eos.CompressionNone)
 	if err != nil {
-		panic(fmt.Errorf("sign transaction: %s", err))
+		log.Error().Msgf("sign transaction: %s", err.Error())
+		return nil, nil
 	}
 	return signedTx, packedTx
 }

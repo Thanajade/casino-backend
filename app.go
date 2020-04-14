@@ -86,6 +86,11 @@ func (app *App) processEvent(event *broker.Event) {
     }
 
     trx, packedTx := GetSigndiceTransaction(api, event.Sender, app.BlockChain.CasinoAccountName, event.RequestID, signature)
+
+    if packedTx == nil {
+        return
+    }
+
     log.Debug().Msgf("%+v", trx)
 
     result, sendError := api.PushTransaction(packedTx)
