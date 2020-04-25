@@ -1,0 +1,27 @@
+language: go
+
+env: GO111MODULE=on GOFLAGS='-mod vendor'
+go:
+  - 1.13.4
+
+git:
+  depth: 1
+
+services:
+  - docker
+
+install: true
+
+notifications:
+  email: false
+
+script:
+  - golangci-lint run
+  - go test -v -race ./...
+  - docker build . -t daocasino/casino-backend:$TRAVIS_BRANCH
+  - |
+    if [ $TRAVIS_BRANCH == "master" ]; then
+      docker tag daocasino/sponsorship-provider:master daocasino/sponsorship-provider:latest
+      echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      docker push daocasino/sponsorship-provider:latest
+    fi
